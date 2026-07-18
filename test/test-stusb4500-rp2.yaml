@@ -1,0 +1,42 @@
+substitutions:
+  ref: main
+
+esphome:
+  name: test-stusb4500-rp2
+  friendly_name: Test STUSB4500 Component with RP2
+
+rp2:
+  board: rpipicow
+
+external_components:
+  source:
+    type: git
+    url: https://github.com/mikelawrence/esphome-components
+    ref: ${ref}
+  components: [ stusb4500 ]
+
+i2c:
+  - id: i2c1_bus
+    sda: GPIO25
+    scl: GPIO24
+    scan: true
+
+stusb4500:
+  alert_pin: GPIO8
+  snk_pdo_numb: 3
+  v_snk_pdo2: 9.00V
+  i_snk_pdo2: 3.00A
+  v_snk_pdo3: 12.00V
+  i_snk_pdo3: 3.00A
+  power_only_above_5v: true
+  usb_comms_capable: true
+
+sensor:
+  - platform: stusb4500
+    pd_state:
+      name: "PD State"
+
+text_sensor:
+  - platform: stusb4500
+    pd_status:
+      name: "PD Status"
