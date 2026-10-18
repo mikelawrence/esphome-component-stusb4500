@@ -25,7 +25,6 @@ jobs:
       tested_tag: ${{ steps.test-release.outputs.tag }}
       run_test: ${{ steps.test-conditions.outputs.run_test }}
       commit: ${{ steps.test-conditions.outputs.commit }}
-      git_ref: ${{ steps.test-conditions.outputs.git_ref }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -49,19 +48,9 @@ jobs:
           LATEST: ${{ steps.esphome-release.outputs.tag }}
           TESTED: ${{ steps.test-release.outputs.tag }}
           EVENT: ${{ github.event_name }}
-          # Use the PR head SHA if available, otherwise fall back to the default SHA
-          PR_OR_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           run_test=1
           commit=0
-          
-          # Set the reference fallback logic
-          if [[ "${EVENT}" == "pull_request" ]]; then
-            git_ref="${PR_OR_SHA}"
-          else
-            git_ref="${{ github.ref_name }}"
-          fi
-
           if [[ "${EVENT}" == "schedule" ]]; then
             echo "Scheduled CI. Latest=${LATEST} LastTested=${TESTED}"
             if [[ "${LATEST}" == "${TESTED}" ]]; then
@@ -73,11 +62,8 @@ jobs:
           else
             echo "Commit or manual run; always test."
           fi
-          
           echo "run_test=${run_test}" >> "$GITHUB_OUTPUT"
           echo "commit=${commit}" >> "$GITHUB_OUTPUT"
-          # Save it so the next job can read it
-          echo "git_ref=${git_ref}" >> "$GITHUB_OUTPUT" 
 
       - name: Display data
         run: |
@@ -85,7 +71,6 @@ jobs:
           echo "Last tested: ${{ steps.test-release.outputs.tag }}"
           echo "Run test:    ${{ steps.test-conditions.outputs.run_test }}"
           echo "Commit:      ${{ steps.test-conditions.outputs.commit }}"
-          echo "Git Ref:     ${{ steps.test-conditions.outputs.git_ref }}"
 
   ci:
     name: Building ${{ matrix.file }} / ${{ matrix.esphome-version }}
@@ -105,28 +90,14 @@ jobs:
           - stable
           - dev
     steps:
-      - name: Checkout source code 
+      - name: Checkout source code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      
-      - name: Get checked out SHA
-        id: vars
-        run: |
-          # Extracts the full 40-character commit SHA
-          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-          
-          # Optional: Extracts the 7-character short SHA
-          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-      
-      - name: Use the SHA in a later step
-        run: |
-          echo "Full SHA is ${{ steps.vars.outputs.sha }}"
-          echo "Short SHA is ${{ steps.vars.outputs.short_sha }}"
-      
+
       - name: ESPHome ${{ matrix.esphome-version }}
         uses: esphome/build-action@ae5408cdbc4f70692bf8e345c4982bca05a93667  # v8.1.0
         with:
           substitutions: |
-            ref=${{ steps.vars.outputs.sha }}
+            ref=${{ github.sha }}
           yaml-file: ${{ matrix.file }}.yaml
           version: ${{ matrix.esphome-version }}
 
