@@ -25,6 +25,7 @@ jobs:
       tested_tag: ${{ steps.test-release.outputs.tag }}
       run_test: ${{ steps.test-conditions.outputs.run_test }}
       commit: ${{ steps.test-conditions.outputs.commit }}
+      git_ref: ${{ steps.test-conditions.outputs.git_ref }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -48,9 +49,19 @@ jobs:
           LATEST: ${{ steps.esphome-release.outputs.tag }}
           TESTED: ${{ steps.test-release.outputs.tag }}
           EVENT: ${{ github.event_name }}
+          # Use the PR head SHA if available, otherwise fall back to the default SHA
+          PR_OR_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           run_test=1
           commit=0
+          
+          # Set the reference fallback logic
+          if [[ "${EVENT}" == "pull_request" ]]; then
+            git_ref="${PR_OR_SHA}"
+          else
+            git_ref="${{ github.ref_name }}"
+          fi
+
           if [[ "${EVENT}" == "schedule" ]]; then
             echo "Scheduled CI. Latest=${LATEST} LastTested=${TESTED}"
             if [[ "${LATEST}" == "${TESTED}" ]]; then
@@ -62,8 +73,11 @@ jobs:
           else
             echo "Commit or manual run; always test."
           fi
+          
           echo "run_test=${run_test}" >> "$GITHUB_OUTPUT"
           echo "commit=${commit}" >> "$GITHUB_OUTPUT"
+          # Save it so the next job can read it
+          echo "git_ref=${git_ref}" >> "$GITHUB_OUTPUT" 
 
       - name: Display data
         run: |
