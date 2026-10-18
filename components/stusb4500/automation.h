@@ -1,7 +1,7 @@
 #pragma once
 
 #include "esphome/core/component.h"
-#include "esphome/core/automation.h" 
+#include "esphome/core/automation.h"
 #include "stusb4500.h"
 
 namespace esphome
