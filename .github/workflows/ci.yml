@@ -85,6 +85,7 @@ jobs:
           echo "Last tested: ${{ steps.test-release.outputs.tag }}"
           echo "Run test:    ${{ steps.test-conditions.outputs.run_test }}"
           echo "Commit:      ${{ steps.test-conditions.outputs.commit }}"
+          echo "Git Ref:     ${{ steps.test-conditions.outputs.git_ref }}"
 
   ci:
     name: Building ${{ matrix.file }} / ${{ matrix.esphome-version }}
@@ -104,14 +105,14 @@ jobs:
           - stable
           - dev
     steps:
-      - name: Checkout source code
+      - name: Checkout source code 
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: ESPHome ${{ matrix.esphome-version }}
         uses: esphome/build-action@ae5408cdbc4f70692bf8e345c4982bca05a93667  # v8.1.0
         with:
           substitutions: |
-            ref=${{ github.event.pull_request.head.sha || github.sha }}
+            ref=${{ needs.check.outputs.git_ref }}
           yaml-file: ${{ matrix.file }}.yaml
           version: ${{ matrix.esphome-version }}
 
