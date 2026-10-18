@@ -10,7 +10,7 @@ namespace esphome
 {
   namespace stusb4500
   {
-    static const char *const TAG = "stusb4500";
+    ESPHOME_LOG_TAG(TAG, "stusb4500");
 
     void STUSB4500Hub::setup()
     {
