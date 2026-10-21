@@ -1,6 +1,9 @@
 substitutions:
   ref: main
 
+logger:
+  level: VERY_VERBOSE
+
 esphome:
   name: test-stusb4500-esp32-s3-ard
   friendly_name: Test STUSB4500 Component with ESP32-S3 and Arduino Framework
@@ -13,7 +16,7 @@ esp32:
     type: arduino
 
 external_components:
-  - source: github://mikelawrence/esphome-component-stusb4500@${ref}
+  - source: github://mikelawrence/esphome-component-stusb4500@{ref}
 
 i2c:
   - id: i2c1_bus
