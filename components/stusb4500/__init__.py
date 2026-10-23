@@ -1,14 +1,9 @@
-import esphome.codegen as cg
-import esphome.config_validation as cv
-from esphome.components import sensor, i2c, text_sensor
-from esphome import core, pins
-from esphome.core import TimePeriod, TimePeriodSeconds
-from esphome import automation
+from esphome import automation, core, pins
 from esphome.automation import maybe_simple_id
-
-from esphome.const import (
-    CONF_ID,
-)
+import esphome.codegen as cg
+from esphome.components import i2c
+import esphome.config_validation as cv
+from esphome.const import CONF_ID
 
 CONF_ALERT_PIN = "alert_pin"
 CONF_FLASH_NVM = "flash_nvm"

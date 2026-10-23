@@ -1,12 +1,9 @@
 import esphome.codegen as cg
-import esphome.config_validation as cv
 from esphome.components import text_sensor
-from esphome import core
-from esphome.const import (
-    ENTITY_CATEGORY_DIAGNOSTIC,
-)
+import esphome.config_validation as cv
+from esphome.const import ENTITY_CATEGORY_DIAGNOSTIC
 
-from . import HUB_CHILD_SCHEMA, CONF_STUSB4500_HUB_ID
+from . import CONF_STUSB4500_HUB_ID, HUB_CHILD_SCHEMA
 
 CONF_PD_STATUS = "pd_status"
 ICON_USBC = "mdi:usb-c-port"
