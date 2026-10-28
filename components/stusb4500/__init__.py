@@ -88,7 +88,7 @@ def validate_pdo_flex_current(value):
 
 def validate_disch_time_0v(value):
     value = cv.positive_time_period_milliseconds(value).total_milliseconds
-    rvalue = int(round(float(value) / 84.0) / 84)
+    rvalue = round(float(value) / 84.0) * 84
     if rvalue != value:
         raise cv.Invalid("VBUS Discharge Time to 0V must be a multiple of 84 ms")
     return value
@@ -96,7 +96,7 @@ def validate_disch_time_0v(value):
 
 def validate_disch_time_pdo(value):
     value = cv.positive_time_period_milliseconds(value).total_milliseconds
-    rvalue = int(round(value * 24.0) / 24.0)
+    rvalue = round(float(value) / 24.0) * 24
     if rvalue != value:
         raise cv.Invalid("VBUS Discharge time to PDO must be a multiple of 24 ms")
     return value
@@ -170,7 +170,7 @@ CONFIG_SCHEMA = cv.All(
                     min=core.TimePeriod(milliseconds=84),
                     max=core.TimePeriod(milliseconds=1260),
                 ),
-                validate_disch_time_pdo,
+                validate_disch_time_0v,
             ),
             cv.Optional(CONF_VBUS_DISCH_TIME_TO_PDO): cv.All(
                 cv.positive_time_period_milliseconds,
