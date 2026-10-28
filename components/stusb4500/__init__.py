@@ -205,39 +205,95 @@ async def to_code(config):
     # TODO: Remove this check when we drop support for ESPHome 2026.10.0 and older
     if cv.Version.parse(__version__) >= cv.Version(2026, 11, 0):
         var = await i2c.new_i2c_component(config)
+
+        await cg.add_pin(var.set_alert_pin, config[CONF_ALERT_PIN])
+        cg.add_optional(var.set_flash_nvm, config.get(CONF_FLASH_NVM))
+        cg.add_optional(var.set_default_nvm, config.get(CONF_DEFAULT_NVM))
+        cg.add_optional(var.set_snk_pdo_numb, config.get(CONF_SNK_PDO_NUMB))
+        cg.add_optional(var.set_v_snk_pdo2, config.get(CONF_V_SNK_PDO2))
+        cg.add_optional(var.set_v_snk_pdo3, config.get(CONF_V_SNK_PDO3))
+        cg.add_optional(var.set_i_snk_pdo1, config.get(CONF_I_SNK_PDO1))
+        cg.add_optional(var.set_i_snk_pdo2, config.get(CONF_I_SNK_PDO2))
+        cg.add_optional(var.set_i_snk_pdo3, config.get(CONF_I_SNK_PDO3))
+        cg.add_optional(var.set_i_snk_pdo_flex, config.get(CONF_I_SNK_PDO_FLEX))
+        cg.add_optional(var.set_shift_vbus_hl1, config.get(CONF_SHIFT_VBUS_HL1))
+        cg.add_optional(var.set_shift_vbus_ll1, config.get(CONF_SHIFT_VBUS_LL1))
+        cg.add_optional(var.set_shift_vbus_hl2, config.get(CONF_SHIFT_VBUS_HL2))
+        cg.add_optional(var.set_shift_vbus_ll2, config.get(CONF_SHIFT_VBUS_LL2))
+        cg.add_optional(var.set_shift_vbus_hl3, config.get(CONF_SHIFT_VBUS_HL3))
+        cg.add_optional(var.set_shift_vbus_ll3, config.get(CONF_SHIFT_VBUS_LL3))
+        cg.add_optional(
+            var.set_vbus_disch_time_to_0v, config.get(CONF_VBUS_DISCH_TIME_TO_0V)
+        )
+        cg.add_optional(
+            var.set_vbus_disch_time_to_pdo, config.get(CONF_VBUS_DISCH_TIME_TO_PDO)
+        )
+        cg.add_optional(var.set_vbus_disch_disable, config.get(CONF_VBUS_DISCH_DISABLE))
+        cg.add_optional(var.set_power_ok_cfg, config.get(CONF_POWER_OK_CFG))
+        cg.add_optional(var.set_gpio_cfg, config.get(CONF_GPIO_CFG))
+        cg.add_optional(var.set_usb_comm_capable, config.get(CONF_USB_COMM_CAPABLE))
+        cg.add_optional(var.set_snk_uncons_power, config.get(CONF_SNK_UNCONS_POWER))
+        cg.add_optional(var.set_req_src_current, config.get(CONF_REQ_SRC_CURRENT))
+        cg.add_optional(
+            var.set_power_only_above_5v, config.get(CONF_POWER_ONLY_ABOVE_5V)
+        )
     else:
         var = cg.new_Pvariable(config[CONF_ID])
         await cg.register_component(var, config)
         await i2c.register_i2c_device(var, config)
 
-    if CONF_ALERT_PIN in config:
-        cg.add(var.set_alert_pin(await cg.gpio_pin_expression(config[CONF_ALERT_PIN])))
-    cg.add_optional(var.set_flash_nvm, config.get(CONF_FLASH_NVM))
-    cg.add_optional(var.set_default_nvm, config.get(CONF_DEFAULT_NVM))
-    cg.add_optional(var.set_snk_pdo_numb, config.get(CONF_SNK_PDO_NUMB))
-    cg.add_optional(var.set_v_snk_pdo2, config.get(CONF_V_SNK_PDO2))
-    cg.add_optional(var.set_v_snk_pdo3, config.get(CONF_V_SNK_PDO3))
-    cg.add_optional(var.set_i_snk_pdo1, config.get(CONF_I_SNK_PDO1))
-    cg.add_optional(var.set_i_snk_pdo2, config.get(CONF_I_SNK_PDO2))
-    cg.add_optional(var.set_i_snk_pdo3, config.get(CONF_I_SNK_PDO3))
-    cg.add_optional(var.set_i_snk_pdo_flex, config.get(CONF_I_SNK_PDO_FLEX))
-    cg.add_optional(var.set_shift_vbus_hl1, config.get(CONF_SHIFT_VBUS_HL1))
-    cg.add_optional(var.set_shift_vbus_ll1, config.get(CONF_SHIFT_VBUS_LL1))
-    cg.add_optional(var.set_shift_vbus_hl2, config.get(CONF_SHIFT_VBUS_HL2))
-    cg.add_optional(var.set_shift_vbus_ll2, config.get(CONF_SHIFT_VBUS_LL2))
-    cg.add_optional(var.set_shift_vbus_hl3, config.get(CONF_SHIFT_VBUS_HL3))
-    cg.add_optional(var.set_shift_vbus_ll3, config.get(CONF_SHIFT_VBUS_LL3))
-    if CONF_VBUS_DISCH_TIME_TO_0V in config:
-        cg.add(var.set_vbus_disch_time_to_0v(config[CONF_VBUS_DISCH_TIME_TO_0V]))
-    if CONF_VBUS_DISCH_TIME_TO_PDO in config:
-        cg.add(var.set_vbus_disch_time_to_pdo(config[CONF_VBUS_DISCH_TIME_TO_PDO]))
-    cg.add_optional(var.set_vbus_disch_disable, config.get(CONF_VBUS_DISCH_DISABLE))
-    cg.add_optional(var.set_power_ok_cfg, config.get(CONF_POWER_OK_CFG))
-    cg.add_optional(var.set_gpio_cfg, config.get(CONF_GPIO_CFG))
-    cg.add_optional(var.set_usb_comm_capable, config.get(CONF_USB_COMM_CAPABLE))
-    cg.add_optional(var.set_snk_uncons_power, config.get(CONF_SNK_UNCONS_POWER))
-    cg.add_optional(var.set_req_src_current, config.get(CONF_REQ_SRC_CURRENT))
-    cg.add_optional(var.set_power_only_above_5v, config.get(CONF_POWER_ONLY_ABOVE_5V))
+        if CONF_ALERT_PIN in config:
+            cg.add(
+                var.set_alert_pin(await cg.gpio_pin_expression(config[CONF_ALERT_PIN]))
+            )
+        if CONF_FLASH_NVM in config:
+            cg.add(var.set_flash_nvm(config[CONF_FLASH_NVM]))
+        if CONF_DEFAULT_NVM in config:
+            cg.add(var.set_default_nvm(config[CONF_DEFAULT_NVM]))
+        if CONF_SNK_PDO_NUMB in config:
+            cg.add(var.set_snk_pdo_numb(config[CONF_SNK_PDO_NUMB]))
+        if CONF_V_SNK_PDO2 in config:
+            cg.add(var.set_v_snk_pdo2(config[CONF_V_SNK_PDO2]))
+        if CONF_V_SNK_PDO3 in config:
+            cg.add(var.set_v_snk_pdo3(config[CONF_V_SNK_PDO3]))
+        if CONF_I_SNK_PDO1 in config:
+            cg.add(var.set_i_snk_pdo1(config[CONF_I_SNK_PDO1]))
+        if CONF_I_SNK_PDO2 in config:
+            cg.add(var.set_i_snk_pdo2(config[CONF_I_SNK_PDO2]))
+        if CONF_I_SNK_PDO3 in config:
+            cg.add(var.set_i_snk_pdo3(config[CONF_I_SNK_PDO3]))
+        if CONF_I_SNK_PDO_FLEX in config:
+            cg.add(var.set_i_snk_pdo_flex(config[CONF_I_SNK_PDO_FLEX]))
+        if CONF_SHIFT_VBUS_HL1 in config:
+            cg.add(var.set_shift_vbus_hl1(config[CONF_SHIFT_VBUS_HL1]))
+        if CONF_SHIFT_VBUS_LL1 in config:
+            cg.add(var.set_shift_vbus_ll1(config[CONF_SHIFT_VBUS_LL1]))
+        if CONF_SHIFT_VBUS_HL2 in config:
+            cg.add(var.set_shift_vbus_hl2(config[CONF_SHIFT_VBUS_HL2]))
+        if CONF_SHIFT_VBUS_LL2 in config:
+            cg.add(var.set_shift_vbus_ll2(config[CONF_SHIFT_VBUS_LL2]))
+        if CONF_SHIFT_VBUS_HL3 in config:
+            cg.add(var.set_shift_vbus_hl3(config[CONF_SHIFT_VBUS_HL3]))
+        if CONF_SHIFT_VBUS_LL3 in config:
+            cg.add(var.set_shift_vbus_ll3(config[CONF_SHIFT_VBUS_LL3]))
+        if CONF_VBUS_DISCH_TIME_TO_0V in config:
+            cg.add(var.set_vbus_disch_time_to_0v(config[CONF_VBUS_DISCH_TIME_TO_0V]))
+        if CONF_VBUS_DISCH_TIME_TO_PDO in config:
+            cg.add(var.set_vbus_disch_time_to_pdo(config[CONF_VBUS_DISCH_TIME_TO_PDO]))
+        if CONF_VBUS_DISCH_DISABLE in config:
+            cg.add(var.set_vbus_disch_disable(config[CONF_VBUS_DISCH_DISABLE]))
+        if CONF_POWER_OK_CFG in config:
+            cg.add(var.set_power_ok_cfg(config[CONF_POWER_OK_CFG]))
+        if CONF_GPIO_CFG in config:
+            cg.add(var.set_gpio_cfg(config[CONF_GPIO_CFG]))
+        if CONF_USB_COMM_CAPABLE in config:
+            cg.add(var.set_usb_comm_capable(config[CONF_USB_COMM_CAPABLE]))
+        if CONF_SNK_UNCONS_POWER in config:
+            cg.add(var.set_snk_uncons_power(config[CONF_SNK_UNCONS_POWER]))
+        if CONF_REQ_SRC_CURRENT in config:
+            cg.add(var.set_req_src_current(config[CONF_REQ_SRC_CURRENT]))
+        if CONF_POWER_ONLY_ABOVE_5V in config:
+            cg.add(var.set_power_only_above_5v(config[CONF_POWER_ONLY_ABOVE_5V]))
 
 
 # Actions
