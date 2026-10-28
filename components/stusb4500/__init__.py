@@ -1,5 +1,3 @@
-import re
-
 from esphome import automation, core, pins
 from esphome.automation import maybe_simple_id
 import esphome.codegen as cg
