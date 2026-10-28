@@ -1,6 +1,0 @@
-{
-  "python.analysis.extraPaths": [
-    "${workspaceFolder}/../esphome-modified",
-    "${workspaceFolder}/components"
-  ]
-}

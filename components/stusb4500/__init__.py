@@ -3,7 +3,7 @@ from esphome.automation import maybe_simple_id
 import esphome.codegen as cg
 from esphome.components import i2c
 import esphome.config_validation as cv
-from esphome.const import CONF_ID
+from esphome.const import CONF_ID, __version__
 
 CONF_ALERT_PIN = "alert_pin"
 CONF_FLASH_NVM = "flash_nvm"
@@ -202,9 +202,13 @@ FINAL_VALIDATE_SCHEMA = i2c.final_validate_device_schema(
 
 
 async def to_code(config):
-    var = cg.new_Pvariable(config[CONF_ID])
-    await cg.register_component(var, config)
-    await i2c.register_i2c_device(var, config)
+    # TODO: Remove this check when we drop support for ESPHome 2026.10.0 and older
+    if cv.Version.parse(__version__) >= cv.Version(2026, 11, 0):
+        var = await i2c.new_i2c_component(config)
+    else:
+        var = cg.new_Pvariable(config[CONF_ID])
+        await cg.register_component(var, config)
+        await i2c.register_i2c_device(var, config)
 
     if CONF_ALERT_PIN in config:
         cg.add(var.set_alert_pin(await cg.gpio_pin_expression(config[CONF_ALERT_PIN])))

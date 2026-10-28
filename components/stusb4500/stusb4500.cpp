@@ -5,10 +5,15 @@
 #include <string>
 
 #include "esphome/core/log.h"
+#include "esphome/core/version.h"
 
 namespace esphome {
 namespace stusb4500 {
+#if ESPHOME_VERSION_CODE >= VERSION_CODE(2026, 10, 0)
+ESPHOME_LOG_TAG(TAG, "stusb4500");
+#else
 static const char *const TAG = "stusb4500";
+#endif
 
 void STUSB4500Hub::setup() {
   float voltage, current;

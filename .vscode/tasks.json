@@ -4,7 +4,7 @@
     {
       "label": "ML ESPHome: Build ESPHome test configs",
       "type": "process",
-      "command": "powershell.exe",
+      "command": "pwsh.exe",
       "args": [
         "-NoProfile",
         "-ExecutionPolicy",
@@ -12,16 +12,23 @@
         "-File",
         "${workspaceFolder}\\.devcontainer\\build.ps1"
       ],
+      "dependsOn": "ML ESPHome: Validate ESPHome component",
+      "dependsOrder": "sequence",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
-        "panel": "dedicated"
+        "panel": "shared",
+        "clear": false
       }
     },
     {
       "label": "ML ESPHome: Validate ESPHome component",
       "type": "process",
-      "command": "powershell.exe",
+      "command": "pwsh.exe",
       "args": [
         "-NoProfile",
         "-ExecutionPolicy",
@@ -32,31 +39,14 @@
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
-        "panel": "dedicated"
-      }
-    },
-    {
-      "label": "ML ESPHome: Fix ESPHome component formatting/lint",
-      "type": "process",
-      "command": "powershell.exe",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\.devcontainer\\validate.ps1",
-        "-Fix"
-      ],
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated"
+        "panel": "shared",
+        "clear": false
       }
     },
     {
       "label": "ML ESPHome: Clear cached downloads",
       "type": "process",
-      "command": "powershell.exe",
+      "command": "pwsh.exe",
       "args": [
         "-NoProfile",
         "-ExecutionPolicy",
