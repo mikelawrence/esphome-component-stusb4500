@@ -11,17 +11,22 @@ There are 3 PDOs that you can configure with PD1 fixed at 5V. You can vary PD1's
 
 The configuration below the STUSB4500 will try to negotiate 12V @ 3A then 9V @ 3A. If neither are available then it won't negotiate at all.
 
-It also creates a `PD State` and `PD Status` Text Sensor.
+It can create a `PD State` sensor and a `PD Status` text sensor.
 
 ```yaml
 # Sample configuration entry example
 external_components:
   - source:
       type: git
-      url: https://github.com/mikelawrence/esphome-components
+      url: https://github.com/mikelawrence/esphome-component-stusb4500
     components: [ stusb4500 ]
 
+i2c:
+  sda: GPIO6
+  scl: GPIO7
+
 stusb4500:
+  id: pd_controller
   alert_pin: GPIO8
   snk_pdo_numb: 3
   v_snk_pdo2: 9.00V
@@ -42,18 +47,23 @@ text_sensor:
       name: "PD Status"
 ```
 
-## Configuration Variables
+## Component/Hub
 
+The device uses I²C address `0x28` and supports an I²C bus frequency up to 400 kHz. The fallback values below do not describe the values currently stored in the device's NVM.
+
+### Configuration Variables
+
+* **id** (*Optional*, ID): ID of the STUSB4500 hub, used to identify it in actions and child entities.
 * **flash_nvm** (*Optional*, boolean): When set to `true` the STUSB4500 NVM will be flashed with the current settings but only if different. To be on the safe side you should not leave this set to `true` . A power cycle is required to renegotiate. Default is `false` .
 * **default_nvm** (*Optional*, boolean): When set to `true` the STUSB4500 NVM will be flashed with default settings but only if different. To be on the safe side you should not leave this set to `true` . A power cycle is required to renegotiate. Default is `false` .
 * **alert_pin** (*Optional*, pin): GPIO connected to the STUSB4500 alert output.
 * **snk_pdo_numb** (*Optional*, integer): Set the number of PDOs that should be negotiated. Range is 1 - 3. A value of 3 means PDO3, PDO2 and PDO1 can be negotiated. A value of 2 means PDO2 and PDO1 can be negotiated. A value of 1 means only PDO1 can be negotiated. Default is 3.
-* **v_snk_pdo2** (*Optional*, float): This is the desired PDO2 voltage. Range is 5.0 to 20.0. Default is 20.0.
-* **v_snk_pdo3** (*Optional*, float): This is the desired PDO3 voltage. Range is 5.0 to 20.0. Default is 15.0.
+* **v_snk_pdo2** (*Optional*, voltage): Desired PDO2 voltage, from 5.0 V to 20.0 V in 0.05 V increments. The component fallback is 15.0 V.
+* **v_snk_pdo3** (*Optional*, voltage): Desired PDO3 voltage, from 5.0 V to 20.0 V in 0.05 V increments. The component fallback is 20.0 V.
 * **i_snk_pdo1** (*Optional*, float): This is the desired PDO1 current. Range is 0.0 to 5.0. 5.0A is only available with 20V. For all other voltages the maximum current is 3.0A. Default is 1.5.
 * **i_snk_pdo2** (*Optional*, float): This is the desired PDO2 current. Range is 0.0 to 5.0. 5.0A is only available with 20V. For all other voltages the maximum current is 3.0A. Default is 1.5.
 * **i_snk_pdo3** (*Optional*, float): This is the desired PDO3 current. Range is 0.0 to 5.0. 5.0A is only available with 20V. For all other voltages the maximum current is 3.0A. Default is 1.0.
-* **i_snk_pdo_flex** (*Optional*, float): Current for a flexible PDO, from 0.01A to 5.0A in steps of 0.01A.
+* **i_snk_pdo_flex** (*Optional*, current): Current for a flexible PDO, from 0.01A to 5.0A in steps of 0.01A. The component fallback is 2.0A.
 * **shift_vbus_hl1** (*Optional*, percentage): This is the percentage above PDO1 voltage when the Over Voltage Lock Out occurs. Range is 1% to 15%. Default is 10%.
 * **shift_vbus_ll1** (*Optional*, percentage): This is the percentage below PDO1 voltage when the Under Voltage Lock Out occurs. Range is 1% to 15%. Default is 15%.
 * **shift_vbus_hl2** (*Optional*, percentage): This is the percentage above PDO2 voltage when the Over Voltage Lock Out occurs. Range is 1% to 15%. Default is 5%.
@@ -70,22 +80,47 @@ text_sensor:
 * **gpio_cfg** (*Optional*, enumeration): Selects the GPIO configuration. Options are `SW_CTRL_GPIO` , `ERROR_RECOVERY` , `DEBUG` or `SINK_POWER` . Default is `ERROR_RECOVERY` .
 * **power_only_above_5v** (*Optional*, boolean): When set to `true` the STUSB4500 will enable V<sub>BUS</sub> only if PDO2 or PDO3 was negotiated. When `false` V<sub>BUS</sub> is enabled at 5V when connected to a non-PD charger. The available current is unknown. Default is `false` .
 
-## Sensors
+## Sensor
 
+```yaml
+sensor:
+  - platform: stusb4500
+    pd_state:
+      name: "PD State"
+```
+
+### Configuration Variables
+
+* **stusb4500_hub_id** (*Optional*, ID): Selects the hub when more than one is configured.
 * **pd_state** (*Optional*): Current PD State as an integer. Range 0 to 3 where 0 is no PD negotiated. A value of 1, 2 or 3 indicates which PDO was negotiated. All Options from [Sensor](https://esphome.io/components/sensor/#config-sensor).
 
-## Text Sensors
+## Text Sensor
 
-* **pd_status** (*Optional*): Easy to read PD State (e.g. "12V @ 3A" ). All Options from [Sensor](https://esphome.io/components/sensor/#config-sensor).
+```yaml
+text_sensor:
+  - platform: stusb4500
+    pd_status:
+      name: "PD Status"
+```
 
-## Actions
+### Configuration Variables
+
+* **stusb4500_hub_id** (*Optional*, ID): Selects the hub when more than one is configured.
+* **pd_status** (*Optional*): Easy to read PD State (e.g. "12V @ 3A"). All options from [Text Sensor](https://esphome.io/components/text_sensor/#config-text-sensor).
+
+## Automations
 
 When the GPIO is configured for software control `gpio_cfg: SW_CTRL_GPIO` these actions control the state of the output.
 
-* **stusb4500.turn_gpio_on** Will pull the GPIO low.
-* **stusb4500.turn_gpio_off** Will set the output to High-Z.
+### `stusb4500.turn_gpio_on` Action
 
-Example using automations...
+Pulls the GPIO low.
+
+#### Configuration Variables
+
+* **id** (*Required*, ID): The STUSB4500 hub to control; the action also accepts the ID directly.
+
+#### Configuration Examples
 
 ```yaml
 on_value_range:
@@ -94,11 +129,26 @@ on_value_range:
       - stusb4500.turn_gpio_on: pd_controller
 ```
 
-Example in lambdas...
+Example in a lambda:
 
 ```yaml
 - lambda: |-
   id(pd_controller).turn_gpio_on();
+```
+
+### `stusb4500.turn_gpio_off` Action
+
+Sets the GPIO output to high impedance.
+
+#### Configuration Variables
+
+* **id** (*Required*, ID): The STUSB4500 hub to control; the action also accepts the ID directly.
+
+#### Configuration Examples
+
+```yaml
+then:
+  - stusb4500.turn_gpio_off: pd_controller
 ```
 
 ## NVM Configuration
@@ -115,7 +165,7 @@ Using the STUSB4500 ESPHome component requires the following steps:
      ```log
      [00:10:03][C][stusb4500:112]: STUSB4500:
      [00:10:03][E][stusb4500:119]:   NVM has been flashed, power cycle the device to reload NVM
-     `
+     ```
 
    If you forgot to add `flash_nvm: true` to the configuration you will see an error in the log.
 
